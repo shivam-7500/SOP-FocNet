@@ -7,7 +7,7 @@ folderModel = 'model';
 folderTest  = 'testsets';
 folderResult= 'results';
 imageSets   = {'BSD68','Set12','Set14','Urban100'}; % testing datasets
-setTestCur  = imageSets{2};      % current testing dataset
+setTestCur  = 'Test_Set';      % current testing dataset
 
 
 showresult  = 1;
@@ -17,7 +17,7 @@ gpu         = 1;
 noiseSigma  = 50;
 CurTask = 'Denoising';
 % load model
-epoch       = 30;
+epoch       = 5;
 
 modelName   = ['FracDCNN' CurTask num2str(noiseSigma)];
 
@@ -39,7 +39,7 @@ net.vars(net.getVarIndex('prediction')).precious = 1 ;
 net.mode = 'test';
 
 if gpu
-    net.move('gpu');
+%    net.move('gpu');
 end
 
 % read images
@@ -83,7 +83,7 @@ for i = 1 : 2*length(filePaths)
     input = im2single(label) + single(noise);
     
     if gpu
-        input = gpuArray(input);
+       % input = gpuArray(input);
     end
     tic
     net.eval({'input', input}) ;

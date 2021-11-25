@@ -539,16 +539,37 @@ function [inputs2] = getDagNNBatch(imdb, batch,noiselevel)
 global CurTask;
 label      = imdb.labels(:,:,:,batch);
 label      = data_augmentation(label,randi(8));
+
+% adding noise
+image_th = uint8(zeros(size(label)));
+for x=155 %initialise change in pixel value
+          pixel=label(:,:);
+          pixel=pixel+x;
+          % check pixel value and assign new value
+         if pixel>255
+              pixel=min(pixel,x);
+           else
+            pixel = pixel;
+         end
+          % save new pixel value in thresholded image
+          image_th(:,:)=pixel;
+         
+          A=uint8(255*(mat2gray(image_th)));
+end
+
+A = single (A);
 switch CurTask
     case 'Denoising'
-        input      = label + noiselevel/255*randn(size(label),'single');  % add AWGN with noise level noiselevel
+       % input      = label + noiselevel/255*randn(size(label),'single');  % add AWGN with noise level noiselevel
+       input = A;
     case 'SISR'
         for ii = 1:numel(batch)
             input(:,:,:,ii) = imresize(imresize(label(:,:,:,ii), 1/noiselevel,'bicubic'), noiselevel, 'bicubic');
         end
 end
-input      = gpuArray(input);
-label      = gpuArray(label);
+%input      = gpuArray(input);
+%label      = gpuArray(label);
 inputs2    = {'input', input, 'label', label} ;
+
 
 
